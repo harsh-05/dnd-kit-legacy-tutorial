@@ -9,11 +9,11 @@ export function useOnClickOutside(ref: RefObject<Element | null>, handler: Funct
                 handler();
         }
 
-        document.addEventListener("click", listener);
-        document.addEventListener("touchstart", listener);
+        document.addEventListener("click", listener, true);
+        document.addEventListener("touchstart", listener, true);
         return () => {
-            document.removeEventListener("click", listener);
-            document.removeEventListener("touchstart", listener);
+            document.removeEventListener("click", listener, true);
+            document.removeEventListener("touchstart", listener, true);
         }
     }, [ref, handler])
 }
