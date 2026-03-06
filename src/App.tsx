@@ -1,10 +1,13 @@
+import { KanbanBoard } from "./KanbanBoard"
 
 
 function App() {
 
 
   return (
-    <div className="bg-red-500">Hellsfadsf</div>
+    <div className="bg-neutral-50 min-h-screen overflow-auto">
+      <KanbanBoard></KanbanBoard>
+    </div>
   )
 }
 
