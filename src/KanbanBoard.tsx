@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Column } from "./types";
 import { AddColumn } from "./AddColumn";
+import { ColumnCard } from "./ColumnCard";
 
 export function KanbanBoard() {
     const [column, setColumn] = useState<Column[]>([]);
@@ -11,11 +12,9 @@ export function KanbanBoard() {
     }
 
     return (
-        <div className="flex gap-2 ">
+        <div className="flex items-start gap-2 ">
             {column.map((col:Column) => {
-                return <div key={col.id} className="min-w-68 max-w-68 min-h-12 bg-neutral-100">
-                    { col.name}
-                </div>
+                return <ColumnCard col= {col}></ColumnCard>
             })}
             
             <AddColumn handleColumnAdd={generateColumn}>{ }</AddColumn>
