@@ -17,7 +17,7 @@ export function KanbanBoard() {
                 return <ColumnCard col= {col}></ColumnCard>
             })}
             
-            <AddColumn handleColumnAdd={generateColumn}>{ }</AddColumn>
+            <AddColumn generateColumn={generateColumn}>{ }</AddColumn>
       </div>
     );
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react"
 import { AddIcon, CrossIcon } from "./Icons";
 import { useOnClickOutside } from "./useOnClickOutside";
 
-export function AddColumn({ handleColumnAdd }: {handleColumnAdd: (name:string)=>void}) {
+export function AddColumn({ generateColumn }: {generateColumn: (name:string)=>void}) {
     const [name, setName] = useState<string>("");
     const [active, setActive] = useState<boolean>(false);
 
@@ -22,14 +22,20 @@ export function AddColumn({ handleColumnAdd }: {handleColumnAdd: (name:string)=>
 
     function handleKeyDown(e: KeyboardEvent) {
         if (e.key === "Enter") {
-          
-            handleColumnAdd(name);
-            setName('');
+          handleColumnAdd();
       }
       if (e.key === "Escape") {
         handleCancel();
       }
+  }
+
+  function handleColumnAdd() {
+    if (name === '') return;
+       generateColumn(name);
+       setName("");
     }
+
+  
 
     useEffect(() => {
         console.log(name)
@@ -62,7 +68,7 @@ export function AddColumn({ handleColumnAdd }: {handleColumnAdd: (name:string)=>
                     value={name}
             />
             <div className="flex items-center">
-              <button onClick={()=>handleColumnAdd(name)} className="bg-blue-500 text-white rounded-md p-2 w-32"> Add Column</button>
+              <button onClick={() => { handleColumnAdd(), inputref.current?.focus(); }} className="bg-blue-500 text-white rounded-md p-2 w-32"> Add Column</button>
               <button onClick={handleCancel}>
                 <CrossIcon></CrossIcon>
               </button>
