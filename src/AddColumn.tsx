@@ -10,7 +10,6 @@ export function AddColumn({ generateColumn }: {generateColumn: (name:string)=>vo
     const inputref = useRef<HTMLInputElement | null>(null);
 
     useOnClickOutside(ref, () => {
-        console.log("Clicked outside");
         if (active) setActive(false);
        
     })
@@ -34,12 +33,6 @@ export function AddColumn({ generateColumn }: {generateColumn: (name:string)=>vo
        generateColumn(name);
        setName("");
     }
-
-  
-
-    useEffect(() => {
-        console.log(name)
-    }, [name]);
 
      useEffect(() => {
        if (active && inputref.current) {
