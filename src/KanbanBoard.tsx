@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import type { Column } from "./types";
+import type { Column, Id } from "./types";
 import { AddColumn } from "./AddColumn";
-import { ColumnCard } from "./ColumnCard";
+import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
 import { DndContext, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
+import { createPortal } from "react-dom";
 
 export function KanbanBoard() {
   const [column, setColumn] = useState<Column[]>([]);
@@ -11,6 +12,9 @@ export function KanbanBoard() {
 
   const [activeEle, setActiveEle] = useState<Column | null>(null);
 
+  const [colTaskName, setColTaskName] = useState<{ id: Id, taskName: string } | undefined>(undefined);
+  
+  
     function generateColumn(name: string) {
         const id = crypto.randomUUID();
         setColumn((prev) => ([...prev, {id, name}]))
@@ -25,15 +29,17 @@ export function KanbanBoard() {
             })}
           </SortableContext>
 
-          <DragOverlay>
-            {activeEle && <ColumnCard col={activeEle}></ColumnCard>}
-          </DragOverlay>
+          {createPortal(
+            <DragOverlay>
+              {activeEle && <ColumnCardPreview col={activeEle} coltaskName={colTaskName}></ColumnCardPreview>}
+            </DragOverlay>,
+            document.body)}
           
         </DndContext>
 
         <AddColumn generateColumn={generateColumn}>{}</AddColumn>
       </div>
-  );
+    );
   
 
   function handleDragStart(event: DragStartEvent) {
@@ -53,7 +59,9 @@ export function KanbanBoard() {
         const newIndex = column.findIndex((object => object.id === over.id));
         return arrayMove(column, oldIndex, newIndex);
         })
-    }
+      }
+    
+    setActiveEle(null);
   }
 }
 
