@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Column, Id } from "./types";
 import { AddColumn } from "./AddColumn";
 import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
@@ -13,6 +13,10 @@ export function KanbanBoard() {
   const [activeEle, setActiveEle] = useState<Column | null>(null);
 
   const [colTaskName, setColTaskName] = useState<{ id: Id, taskName: string } | undefined>(undefined);
+
+  useEffect(() => {
+    console.log(colTaskName)
+  }, [colTaskName])
   
   
     function generateColumn(name: string) {
@@ -25,13 +29,13 @@ export function KanbanBoard() {
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <SortableContext items={colId}>
             {column.map((col: Column) => {
-              return <ColumnCard key={col.id} col={col}></ColumnCard>;
+              return <ColumnCard key={col.id} col={col} coltaskName={colTaskName?.id === col.id ? colTaskName: undefined} setColTaskName={setColTaskName}></ColumnCard>;
             })}
           </SortableContext>
 
           {createPortal(
             <DragOverlay>
-              {activeEle && <ColumnCardPreview col={activeEle} coltaskName={colTaskName}></ColumnCardPreview>}
+              {activeEle && <ColumnCardPreview col={activeEle} coltaskName={colTaskName?.id === activeEle.id ? colTaskName : undefined}></ColumnCardPreview>}
             </DragOverlay>,
             document.body)}
           
@@ -55,9 +59,9 @@ export function KanbanBoard() {
     if(over)
     if (active.id !== over.id) {
       setColumn((cols) => {
-        const oldIndex = column.findIndex((object => object.id === active.id));
-        const newIndex = column.findIndex((object => object.id === over.id));
-        return arrayMove(column, oldIndex, newIndex);
+        const oldIndex = cols.findIndex((object => object.id === active.id));
+        const newIndex = cols.findIndex((object => object.id === over.id));
+        return arrayMove(cols, oldIndex, newIndex);
         })
       }
     

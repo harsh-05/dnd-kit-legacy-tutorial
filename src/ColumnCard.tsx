@@ -66,7 +66,7 @@ export function ColumnCard({
           </div>
         </div>
         {/* Add Card Input Box... Like in trello */}
-        <AddTask></AddTask>
+        <AddTask colTaskName={coltaskName} setColTaskName={setColTaskName} col={col} isDragging={isDragging}></AddTask>
       </div>
     </div>
   );
@@ -89,30 +89,52 @@ export function ColumnCardPreview({
           </div>
         </div>
         {/* Add Card Input Box... Like in trello */}
-        <AddTask></AddTask>
+        <AddTask isPreview={true} colTaskName={coltaskName}></AddTask>
       </div>
     </div>
   );
 }
 
-function AddTask({}: {}) {
+function AddTask({
+  col,
+  isPreview = false,
+  colTaskName,
+  setColTaskName,
+  isDragging = false
+}: {
+  col?: Column
+  isPreview?: boolean;
+  colTaskName: { id: Id; taskName: string } | undefined;
+  setColTaskName?: Dispatch<
+    SetStateAction<
+      | {
+          id: Id;
+          taskName: string;
+        }
+      | undefined
+    >
+    >;
+  isDragging?: boolean
+}) {
   const [active, setActive] = useState(false);
-  const [name, setName] = useState("");
 
   const ref = useRef<HTMLTextAreaElement | null>(null);
   useEffect(() => {
-    console.log("Active state of add task : " + active);
-  }, [active]);
+    console.log("Active state of add task : " + active + "IsPreview" + isPreview);
+  }, [active, isPreview]);
 
   useOnClickOutside(ref, () => {
-    if (active) setActive(false);
+
+    if (colTaskName && setColTaskName) setColTaskName(undefined);
   });
 
-  if (!active) {
+  if (!colTaskName) {
     return (
       <button
-        onClick={() => {
-          setActive(true);
+        onClick={(e) => {
+          e.stopPropagation();
+          if(col && setColTaskName)
+            setColTaskName({id: col.id, taskName: ''});
         }}
         className=" w-full min-h-8 pl-2  flex gap-2 items-center  rounded-md hover:bg-black/20 active:bg-black/40 shadow-md active:shadow-sm"
       >
@@ -123,9 +145,10 @@ function AddTask({}: {}) {
     return (
       <textarea
         ref={ref}
-        value={name}
+        value={colTaskName?.taskName}
         onChange={(e) => {
-          setName(e.target.value);
+          if(setColTaskName && !isPreview && col)
+            setColTaskName(() => { return {id: col.id, taskName: e.target.value}  });
         }}
         className="w-full bg-neutral-50 min-h-8 max-h-32 pl-2 pr-4 pb-4 pt-2 resize-none focus:outline-none rounded-md shadow-md
          [&::-webkit-scrollbar]:rounded-md
