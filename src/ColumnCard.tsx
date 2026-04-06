@@ -119,9 +119,6 @@ function AddTask({
   const [active, setActive] = useState(false);
 
   const ref = useRef<HTMLTextAreaElement | null>(null);
-  useEffect(() => {
-    console.log("Active state of add task : " + active + "IsPreview" + isPreview);
-  }, [active, isPreview]);
 
   useOnClickOutside(ref, () => {
 

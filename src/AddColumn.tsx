@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react"
 import { AddIcon, CrossIcon } from "./Icons";
 import { useOnClickOutside } from "./useOnClickOutside";
 
-export function AddColumn({ generateColumn }: {generateColumn: (name:string)=>void}) {
+export function AddColumn({ generateColumn , onOpen}: {generateColumn: (name:string)=>void, onOpen: ()=>void}) {
     const [name, setName] = useState<string>("");
     const [active, setActive] = useState<boolean>(false);
 
@@ -45,6 +45,7 @@ export function AddColumn({ generateColumn }: {generateColumn: (name:string)=>vo
         return (
           <button onClick={(e) => {
             e.stopPropagation()
+                onOpen();
                 setActive(true);
             }} className="min-w-68 max-w-68 min-h-12 bg-white flex gap-4 items-center p-2 rounded-md shadow-md active:shadow-sm">
             <AddIcon className="size-6"></AddIcon> Add Column

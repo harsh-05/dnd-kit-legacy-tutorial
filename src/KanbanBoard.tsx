@@ -41,7 +41,8 @@ export function KanbanBoard() {
           
         </DndContext>
 
-        <AddColumn generateColumn={generateColumn}>{}</AddColumn>
+        <AddColumn generateColumn={generateColumn} onOpen={()=>{setColTaskName(undefined)}}>
+        </AddColumn>
       </div>
     );
   
