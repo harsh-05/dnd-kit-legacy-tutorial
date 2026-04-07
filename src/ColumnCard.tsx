@@ -61,7 +61,7 @@ export function ColumnCard({
           className="flex justify-between items-center mb-5"
         >
           <div className="text-md font-medium uppercase  pl-4">{col.name}</div>
-          <div className=" rounded-md hover:bg-black/20 p-1 inline-block">
+          <div className=" rounded-md hover:bg-black/20 p-1">
             <ThreeDotsHorizontal></ThreeDotsHorizontal>
           </div>
         </div>
@@ -122,7 +122,7 @@ function AddTask({
 
   useOnClickOutside(ref, () => {
 
-    if (colTaskName && setColTaskName) setColTaskName(undefined);
+    if (colTaskName && !isPreview && setColTaskName) setColTaskName(undefined);
   });
 
   if (!colTaskName) {
