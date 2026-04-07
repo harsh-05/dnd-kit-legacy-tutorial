@@ -58,10 +58,10 @@ export function ColumnCard({
         <div
           {...attributes}
           {...listeners}
-          className="flex justify-between items-center mb-5"
+          className="flex justify-between items-center mb-5 "
         >
-          <div className="text-md font-medium uppercase  pl-4">{col.name}</div>
-          <div className=" rounded-md hover:bg-black/20 p-1">
+          <div className="text-md font-medium uppercase  pl-4 wrap-break-word min-w-0">{col.name}</div>
+          <div className=" rounded-md hover:bg-black/20 p-1 ">
             <ThreeDotsHorizontal></ThreeDotsHorizontal>
           </div>
         </div>
@@ -83,7 +83,7 @@ export function ColumnCardPreview({
     <div className="bg-neutral-200 min-w-68 max-w-68 rounded-md p-2">
       <div>
         <div className="flex justify-between items-center mb-5">
-          <div className="text-md font-medium uppercase  pl-4">{col.name}</div>
+          <div className="text-md font-medium uppercase  pl-4 min-w-0 wrap-break-word">{col.name}</div>
           <div className=" rounded-md hover:bg-black/20 p-1 inline-block">
             <ThreeDotsHorizontal></ThreeDotsHorizontal>
           </div>
