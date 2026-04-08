@@ -6,10 +6,11 @@ import {
   type SetStateAction,
 } from "react";
 import { AddIcon, ThreeDotsHorizontal } from "./Icons";
-import type { Column, Id } from "./types";
+import type { Column, Id, Task } from "./types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useOnClickOutside } from "./useOnClickOutside";
+
 
 export function ColumnCard({
   col,
@@ -17,16 +18,8 @@ export function ColumnCard({
   coltaskName,
 }: {
   col: Column;
-  setColTaskName?: Dispatch<
-    SetStateAction<
-      | {
-          id: Id;
-          taskName: string;
-        }
-      | undefined
-    >
-  >;
-  coltaskName?: { id: Id; taskName: string } | undefined;
+  setColTaskName?: Dispatch<SetStateAction<Task | undefined>>;
+  coltaskName?: Task | undefined;
 }) {
   const {
     attributes,
@@ -60,13 +53,21 @@ export function ColumnCard({
           {...listeners}
           className="flex justify-between items-center mb-5 "
         >
-          <div className="text-md font-medium uppercase  pl-4 wrap-break-word min-w-0">{col.name}</div>
+          <div className="text-md font-medium uppercase  pl-4 wrap-break-word min-w-0">
+            {col.name}
+          </div>
           <div className=" rounded-md hover:bg-black/20 p-1 ">
             <ThreeDotsHorizontal></ThreeDotsHorizontal>
           </div>
         </div>
+
         {/* Add Card Input Box... Like in trello */}
-        <AddTask colTaskName={coltaskName} setColTaskName={setColTaskName} col={col} isDragging={isDragging}></AddTask>
+        <AddTask
+          colTaskName={coltaskName}
+          setColTaskName={setColTaskName}
+          col={col}
+          isDragging={isDragging}
+        ></AddTask>
       </div>
     </div>
   );
@@ -77,7 +78,7 @@ export function ColumnCardPreview({
   coltaskName,
 }: {
   col: Column;
-  coltaskName?: { id: Id; taskName: string } | undefined;
+  coltaskName?: Task | undefined;
 }) {
   return (
     <div className="bg-neutral-200 min-w-68 max-w-68 rounded-md p-2">
@@ -100,28 +101,19 @@ function AddTask({
   isPreview = false,
   colTaskName,
   setColTaskName,
-  isDragging = false
+  isDragging = false,
 }: {
-  col?: Column
+  col?: Column;
   isPreview?: boolean;
-  colTaskName: { id: Id; taskName: string } | undefined;
-  setColTaskName?: Dispatch<
-    SetStateAction<
-      | {
-          id: Id;
-          taskName: string;
-        }
-      | undefined
-    >
-    >;
-  isDragging?: boolean
+  colTaskName: Task | undefined;
+  setColTaskName?: Dispatch<SetStateAction<Task | undefined>>;
+  isDragging?: boolean;
 }) {
-  const [active, setActive] = useState(false);
+  
 
   const ref = useRef<HTMLTextAreaElement | null>(null);
 
   useOnClickOutside(ref, () => {
-
     if (colTaskName && !isPreview && setColTaskName) setColTaskName(undefined);
   });
 
@@ -130,22 +122,22 @@ function AddTask({
       <button
         onClick={(e) => {
           e.stopPropagation();
-          if(col && setColTaskName)
-            setColTaskName({id: col.id, taskName: ''});
+          if (col && setColTaskName)
+            setColTaskName({ id: crypto.randomUUID(), taskName: "", colId: col.id });
         }}
         className=" w-full min-h-8 pl-2  flex gap-2 items-center  rounded-md hover:bg-black/20 active:bg-black/40 shadow-md active:shadow-sm"
       >
         <AddIcon className="size-4"></AddIcon> Add Task
       </button>
-    );
+    )
   } else {
     return (
       <textarea
         ref={ref}
         value={colTaskName?.taskName}
         onChange={(e) => {
-          if(setColTaskName && !isPreview && col)
-            setColTaskName(() => { return {id: col.id, taskName: e.target.value}  });
+          if (setColTaskName && !isPreview && col)
+            setColTaskName((prev) => (prev ? { ...prev, taskName: e.target.value } : prev));
         }}
         className="w-full bg-neutral-50 min-h-8 max-h-32 pl-2 pr-4 pb-4 pt-2 resize-none focus:outline-none rounded-md shadow-md
          [&::-webkit-scrollbar]:rounded-md
