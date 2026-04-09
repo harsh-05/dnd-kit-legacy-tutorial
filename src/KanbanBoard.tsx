@@ -39,7 +39,7 @@ export function KanbanBoard() {
   }
 
   return (
-    <div className="flex items-start gap-2 ">
+    <div className="flex items-start gap-2 h-full overflow-x-auto">
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <SortableContext items={colId}>
           {column.map((col: Column) => {
@@ -51,7 +51,8 @@ export function KanbanBoard() {
                   colTaskName?.colId === col.id ? colTaskName : undefined
                 }
                 setColTaskName={setColTaskName}
-                generateTask = {generateTask}
+                generateTask={generateTask}
+                tasks={tasks.filter((task)=>(task.colId === col.id))}
               ></ColumnCard>
             );
           })}
