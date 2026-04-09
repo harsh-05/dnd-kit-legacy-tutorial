@@ -22,17 +22,20 @@ export function KanbanBoard() {
   const [colTaskName, setColTaskName] = useState<Task | undefined>(undefined);
   
   useEffect(() => {
-    console.log(colTaskName);
-  }, [colTaskName])
+    console.log(tasks);
+  }, [tasks])
 
   function generateColumn(name: string) {
     const id = crypto.randomUUID();
     setColumn((prev) => [...prev, { id, name }]);
   }
 
-  function generateTask(name: string, colId: Id) {
-    const id = crypto.randomUUID();
-    setTasks((prev) => [...prev, { id, taskName: name, colId }]);
+  function generateTask() {
+    if (colTaskName && colTaskName.taskName !== '') {
+      setTasks((prev) => [...prev, colTaskName]);
+      
+    }
+    setColTaskName(undefined);
   }
 
   return (
@@ -48,6 +51,7 @@ export function KanbanBoard() {
                   colTaskName?.colId === col.id ? colTaskName : undefined
                 }
                 setColTaskName={setColTaskName}
+                generateTask = {generateTask}
               ></ColumnCard>
             );
           })}
@@ -71,9 +75,10 @@ export function KanbanBoard() {
       <AddColumn
         generateColumn={generateColumn}
         onOpen={() => {
-          setColTaskName(undefined);
+          generateTask();
         }}
       ></AddColumn>
+
     </div>
   );
 

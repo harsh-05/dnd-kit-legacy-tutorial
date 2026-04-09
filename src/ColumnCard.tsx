@@ -16,10 +16,12 @@ export function ColumnCard({
   col,
   setColTaskName,
   coltaskName,
+  generateTask
 }: {
   col: Column;
   setColTaskName?: Dispatch<SetStateAction<Task | undefined>>;
-  coltaskName?: Task | undefined;
+    coltaskName?: Task | undefined;
+  generateTask: ()=>void
 }) {
   const {
     attributes,
@@ -67,6 +69,7 @@ export function ColumnCard({
           setColTaskName={setColTaskName}
           col={col}
           isDragging={isDragging}
+          generateTask={generateTask}
         ></AddTask>
       </div>
     </div>
@@ -102,19 +105,24 @@ function AddTask({
   colTaskName,
   setColTaskName,
   isDragging = false,
+  generateTask
 }: {
   col?: Column;
   isPreview?: boolean;
   colTaskName: Task | undefined;
   setColTaskName?: Dispatch<SetStateAction<Task | undefined>>;
-  isDragging?: boolean;
+    isDragging?: boolean;
+  generateTask? : ()=>void
 }) {
   
 
   const ref = useRef<HTMLTextAreaElement | null>(null);
 
   useOnClickOutside(ref, () => {
-    if (colTaskName && !isPreview && setColTaskName) setColTaskName(undefined);
+    if (colTaskName && !isPreview && setColTaskName && generateTask) {
+      generateTask();
+      setColTaskName(undefined);
+     } 
   });
 
   if (!colTaskName) {
@@ -135,6 +143,13 @@ function AddTask({
       <textarea
         ref={ref}
         value={colTaskName?.taskName}
+        onKeyDown={(e) => {
+          
+          if (e.key === "Enter" && generateTask) {
+            e.preventDefault();
+            generateTask();
+          }
+        }}
         onChange={(e) => {
           if (setColTaskName && !isPreview && col)
             setColTaskName((prev) => (prev ? { ...prev, taskName: e.target.value } : prev));
