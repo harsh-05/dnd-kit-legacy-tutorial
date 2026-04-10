@@ -66,6 +66,7 @@ export function KanbanBoard() {
                 coltaskName={
                   colTaskName?.colId === activeEle.id ? colTaskName : undefined
                 }
+                tasks={tasks.filter((task)=>task.colId === activeEle.id)}
               ></ColumnCardPreview>
             )}
           </DragOverlay>,

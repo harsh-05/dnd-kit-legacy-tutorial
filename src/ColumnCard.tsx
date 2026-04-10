@@ -70,7 +70,7 @@ export function ColumnCard({
         </div>
 
         {/* Displaying the tasks here... */}
-        <div className="flex flex-col bg-red-400 flex-1 min-h-0 overflow-y-auto ">
+        <div className="flex flex-col  flex-1 min-h-0 overflow-y-auto ">
           {tasks.map((task) => {
             return <TaskCard key={task.id} task={task}></TaskCard>;
           })}
@@ -99,8 +99,8 @@ export function ColumnCardPreview({
   tasks: Task[];
 }) {
   return (
-    <div className="bg-neutral-200 min-w-68 max-w-68 rounded-md p-2">
-      <div>
+    <div className="bg-neutral-200 min-w-68 max-w-68 max-h-full flex flex-col rounded-md p-2 opacity-80 ">
+      <div className="flex flex-col min-h-0">
         <div className="flex justify-between items-center mb-5">
           <div className="text-md font-medium uppercase  pl-4 min-w-0 wrap-break-word">
             {col.name}
@@ -108,6 +108,12 @@ export function ColumnCardPreview({
           <div className=" rounded-md hover:bg-black/20 p-1 inline-block">
             <ThreeDotsHorizontal></ThreeDotsHorizontal>
           </div>
+        </div>
+
+        <div className="flex flex-col  min-h-0 flex-1 overflow-y-hidden ">
+          {tasks.map((task) => {
+            return <TaskCard key={task.id} task={task}></TaskCard>;
+          })}
         </div>
 
         {/* Add Card Input Box... Like in trello */}
@@ -153,7 +159,7 @@ function AddTask({
               colId: col.id,
             });
         }}
-        className=" shrink-0 w-full min-h-8 pl-2  flex gap-2 items-center  rounded-md hover:bg-black/20 active:bg-black/40 shadow-md active:shadow-sm"
+        className=" shrink-0 w-full min-h-8 pl-2 mt-2  flex gap-2 items-center  rounded-md hover:bg-black/20 active:bg-black/40 shadow-md active:shadow-sm"
       >
         <AddIcon className="size-4"></AddIcon> Add Task
       </button>
@@ -175,7 +181,7 @@ function AddTask({
               prev ? { ...prev, taskName: e.target.value } : prev,
             );
         }}
-        className="shrink-0 w-full bg-neutral-50 min-h-8 max-h-32 pl-2 pr-4 pb-4 pt-2 resize-none focus:outline-none rounded-md shadow-md
+        className="shrink-0 w-full bg-neutral-50 min-h-8 max-h-32 mt-2 pl-2 pr-4 pb-4 pt-2 resize-none focus:outline-none rounded-md shadow-md
          [&::-webkit-scrollbar]:rounded-md
          [&::-webkit-scrollbar]:w-3
           [&::-webkit-scrollbar-track]:rounded-md
