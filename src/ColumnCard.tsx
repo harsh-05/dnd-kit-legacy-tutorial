@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type Dispatch,
@@ -7,7 +8,7 @@ import {
 } from "react";
 import { AddIcon, ThreeDotsHorizontal } from "./Icons";
 import type { Column, Id, Task } from "./types";
-import { useSortable } from "@dnd-kit/sortable";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useOnClickOutside } from "./useOnClickOutside";
 import { TaskCard } from "./TaskCard";
@@ -40,6 +41,8 @@ export function ColumnCard({
     },
   });
 
+  const taskIds = useMemo(() => { return tasks.map((task) => task.id) }, [tasks]);
+
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
@@ -70,10 +73,12 @@ export function ColumnCard({
         </div>
 
         {/* Displaying the tasks here... */}
-        <div className="flex flex-col  flex-1 min-h-0 overflow-y-auto ">
-          {tasks.map((task) => {
-            return <TaskCard key={task.id} task={task}></TaskCard>;
-          })}
+        <div className="flex flex-col  flex-1 min-h-0 overflow-y-auto  ">
+          <SortableContext items={taskIds}>
+            {tasks.map((task) => {
+              return <TaskCard key={task.id} task={task}></TaskCard>;
+            })}
+          </SortableContext>
         </div>
 
         {/* Add Card Input Box... Like in trello */}
