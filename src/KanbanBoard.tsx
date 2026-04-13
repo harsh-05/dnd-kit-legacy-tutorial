@@ -49,7 +49,6 @@ export function KanbanBoard() {
     setColTaskName(undefined);
   }
 
-
   return (
     <div className="flex items-start gap-2 h-full overflow-x-auto">
       <DndContext
@@ -114,21 +113,53 @@ export function KanbanBoard() {
       setActiveEle({ type: "column", element: event.active.data.current?.col });
       return;
     }
-     if (event.active.data.current?.type === "task") {
+    if (event.active.data.current?.type === "task") {
       setActiveEle({ type: "task", element: event.active.data.current?.task });
       return;
     }
   }
 
   function handleDragOver(event: DragOverEvent) {
-    console.log(event);
+   
+
+    const { active, over } = event;
+    console.log(over);
+
+    if (active.data.current?.type === "task" && over && active.id !== over?.id) {
+      const activeId = active.id;
+      const overId = over.id;
+
+      if (over.data.current?.type === "column") {
+        const newTasks = tasks.map((task) => {
+          if (task.id === activeId) return { ...task, colId: overId };
+          return task;
+        });
+        setTasks(newTasks);
+        return;
+      }
+
+      if (over.data.current?.type === "task") {
+        setTasks((tasks) => {
+          const activeIndex = tasks.findIndex((obj) => obj.id === activeId);
+          const overIndex = tasks.findIndex((obj) => obj.id === overId);
+
+          if (tasks[activeIndex].colId !== tasks[overIndex].colId) {
+            tasks[activeIndex].colId = tasks[overIndex].colId;
+          
+            return arrayMove(tasks, activeIndex, overIndex - 1);
+          }
+          return arrayMove(tasks, activeIndex, overIndex);
+        })
+        return;
+      }
+    }
   }
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
     console.log(over?.data.current?.type);
     if (over)
-      if (active.id !== over.id) {
+      if (active.id !== over.id && active.data.current?.type === 'column' && over.data.current?.type === 'column')  {
         setColumn((cols) => {
           const oldIndex = cols.findIndex((object) => object.id === active.id);
           const newIndex = cols.findIndex((object) => object.id === over.id);
@@ -139,23 +170,23 @@ export function KanbanBoard() {
     setActiveEle(null);
   }
 
-
   function kanbanCollisionDetection(args: any) {
     const { active, droppableContainers } = args;
-    
+
     if (active.data.current?.type === "column") {
       const collisions = closestCenter(args);
 
       const collisionIds = new Set(
-          droppableContainers.filter((c:any)=>c.data.current?.type === 'column').map((c:any)=>c.id)
-      )
+        droppableContainers
+          .filter((c: any) => c.data.current?.type === "column")
+          .map((c: any) => c.id),
+      );
 
       return collisions.filter((collision: any) => {
-            return collisionIds.has(collision.id)
+        return collisionIds.has(collision.id);
       });
     }
-    
-    return closestCenter(args);
+
+    return rectIntersection(args);
   }
-  
 }
