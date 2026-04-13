@@ -121,10 +121,7 @@ export function KanbanBoard() {
   }
 
   function handleDragOver(event: DragOverEvent) {
-    console.log(event.active.data.current?.type);
-    console.log(event.over?.data.current?.type);
-
-   
+    console.log(event);
   }
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -157,12 +154,8 @@ export function KanbanBoard() {
             return collisionIds.has(collision.id)
       });
     }
-
-    const pointerCollision = pointerWithin(args);
     
-    if (pointerCollision.length > 0) return pointerCollision;
-
-    return closestCorners(args);
+    return closestCenter(args);
   }
   
 }
