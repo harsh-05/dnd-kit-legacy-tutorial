@@ -19,7 +19,7 @@ export function TaskCard({ task }: { task: Task }) {
   });
 
   const style = {
-      transform: CSS.Translate.toString(transform),
+      transform: CSS.Transform.toString(transform),
       transition,
     };
 
