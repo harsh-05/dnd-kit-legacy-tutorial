@@ -3,8 +3,11 @@ import type { Column, Id, Task } from "./types";
 import { AddColumn } from "./AddColumn";
 import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
 import {
+  closestCenter,
+  closestCorners,
   DndContext,
   DragOverlay,
+  pointerWithin,
   rectIntersection,
   type CollisionDetection,
   type DragEndEvent,
@@ -121,33 +124,7 @@ export function KanbanBoard() {
     console.log(event.active.data.current?.type);
     console.log(event.over?.data.current?.type);
 
-    // console.log(event);
-    // const { active, over } = event;
-    // if (over && active.data.current?.type === 'task') { 
-    //   const oldIndex = tasks.findIndex((obj) => obj.id === active.id);
-    //       const newIndex = tasks.findIndex((obj) => obj.id === over.id);
-    //   if (active.id !== over.id ) {
-    //     setTasks((tasks) => {
-    //       tasks[oldIndex].colId = tasks[newIndex].colId;
-    //       return arrayMove(tasks, oldIndex, newIndex)
-    //     })
-      
-    //   }
-    //   if (over.data.current?.type === 'column') { 
-    //     setTasks((tasks) => {
-             
-    //       return tasks.map((task, ind) => {
-    //         if (ind === oldIndex) {
-    //           return {...task, colId: over.id}
-    //         }
-    //         return task;
-    //        })
-    //     })
-    //   }
-
-    // }
-
-    
+   
   }
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -168,25 +145,24 @@ export function KanbanBoard() {
 
   function kanbanCollisionDetection(args: any) {
     const { active, droppableContainers } = args;
-
-    // If the item we are dragging is a COLUMN...
+    
     if (active.data.current?.type === "column") {
-      // Get the normal collisions
-      const collisions = rectIntersection(args);
+      const collisions = closestCenter(args);
 
-      // FILTER OUT any collision that is NOT a column
+      const collisionIds = new Set(
+          droppableContainers.filter((c:any)=>c.data.current?.type === 'column').map((c:any)=>c.id)
+      )
+
       return collisions.filter((collision: any) => {
-        const container = droppableContainers.find(
-          (c: any) => c.id === collision.id,
-        );
-        return container?.data.current?.type === "column";
+            return collisionIds.has(collision.id)
       });
     }
 
-    // If it's a task, just use the default behavior (allow hovering over tasks and columns)
-    return rectIntersection(args);
+    const pointerCollision = pointerWithin(args);
+    
+    if (pointerCollision.length > 0) return pointerCollision;
+
+    return closestCorners(args);
   }
-
-
   
 }
