@@ -13,10 +13,12 @@ import {
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
+  type DroppableContainer,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import { TaskCardPreview } from "./TaskCard";
+import type { Container } from "react-dom/client";
 
 export function KanbanBoard() {
   const [column, setColumn] = useState<Column[]>([]);
@@ -120,10 +122,10 @@ export function KanbanBoard() {
   }
 
   function handleDragOver(event: DragOverEvent) {
-   
+   // Need to improve the logic... Currently working through Poor logic...
 
     const { active, over } = event;
-    console.log(over);
+    console.log(over?.data.current?.type);
 
     if (active.data.current?.type === "task" && over && active.id !== over?.id) {
       const activeId = active.id;
@@ -143,7 +145,9 @@ export function KanbanBoard() {
           const activeIndex = tasks.findIndex((obj) => obj.id === activeId);
           const overIndex = tasks.findIndex((obj) => obj.id === overId);
 
-          if (tasks[activeIndex].colId !== tasks[overIndex].colId) {
+          if (tasks[activeIndex].colId !== tasks[overIndex].colId && activeIndex < overIndex) {
+
+            // Direct state mutation is not allowed.... check and change it later
             tasks[activeIndex].colId = tasks[overIndex].colId;
           
             return arrayMove(tasks, activeIndex, overIndex - 1);
@@ -173,18 +177,18 @@ export function KanbanBoard() {
   function kanbanCollisionDetection(args: any) {
     const { active, droppableContainers } = args;
 
-    if (active.data.current?.type === "column") {
-      const collisions = closestCenter(args);
+    const colActive = active.data.current?.type === 'column';
 
-      const collisionIds = new Set(
-        droppableContainers
-          .filter((c: any) => c.data.current?.type === "column")
-          .map((c: any) => c.id),
-      );
+    if (colActive) {
+      const columnContainers = droppableContainers.filter((c: DroppableContainer) => c.data.current?.type === 'column');
+      return closestCenter({ ...args, droppableContainers: columnContainers });
 
-      return collisions.filter((collision: any) => {
-        return collisionIds.has(collision.id);
-      });
+    }
+
+    const taskContainers = droppableContainers.filter((c: DroppableContainer) => c.data.current?.type === 'task');
+
+    if (taskContainers.length > 0) {
+        return rectIntersection({...args, droppableContainers: taskContainers})
     }
 
     return rectIntersection(args);
