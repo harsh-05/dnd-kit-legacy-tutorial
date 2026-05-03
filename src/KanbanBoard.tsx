@@ -4,12 +4,14 @@ import { AddColumn } from "./AddColumn";
 import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
 import {
   closestCenter,
-  closestCorners,
   DndContext,
   DragOverlay,
-  pointerWithin,
+  MouseSensor,
+  PointerSensor,
   rectIntersection,
-  type CollisionDetection,
+  TouchSensor,
+  useSensor,
+  useSensors,
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
@@ -18,7 +20,6 @@ import {
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import { TaskCardPreview } from "./TaskCard";
-import type { Container } from "react-dom/client";
 
 export function KanbanBoard() {
   const [column, setColumn] = useState<Column[]>([]);
@@ -51,6 +52,21 @@ export function KanbanBoard() {
     setColTaskName(undefined);
   }
 
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 10
+    }
+  })
+
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5
+    }
+  })
+
+  const sensors = useSensors(pointerSensor, touchSensor)
+
   return (
     <div className="flex items-start gap-2 h-full overflow-x-auto">
       <DndContext
@@ -58,6 +74,8 @@ export function KanbanBoard() {
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
         collisionDetection={kanbanCollisionDetection}
+        sensors={sensors}
+        
       >
         <SortableContext items={colId}>
           {column.map((col: Column) => {
@@ -122,7 +140,7 @@ export function KanbanBoard() {
   }
 
   function handleDragOver(event: DragOverEvent) {
-   // Need to improve the logic... Currently working through Poor logic...
+   //Need to improve the logic... Currently working through Poor logic...
 
     const { active, over } = event;
     console.log(over?.data.current?.type);
