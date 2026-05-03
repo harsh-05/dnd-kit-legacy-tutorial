@@ -176,7 +176,6 @@ export function KanbanBoard() {
 
   function kanbanCollisionDetection(args: any) {
     const { active, droppableContainers } = args;
-
     const colActive = active.data.current?.type === 'column';
 
     if (colActive) {
@@ -187,10 +186,15 @@ export function KanbanBoard() {
 
     const taskContainers = droppableContainers.filter((c: DroppableContainer) => c.data.current?.type === 'task');
 
-    if (taskContainers.length > 0) {
-        return rectIntersection({...args, droppableContainers: taskContainers})
+    const taskContainersCollision = rectIntersection({ ...args, droppableContainers: taskContainers });
+    console.log(taskContainersCollision)
+
+    if (taskContainersCollision.length > 0) {
+      return taskContainersCollision;
     }
 
-    return rectIntersection(args);
+    const columnContainers = droppableContainers.filter((c: DroppableContainer) => c.data.current?.type === 'column')
+
+    return closestCenter({...args, droppableContainers :columnContainers});
   }
 }
