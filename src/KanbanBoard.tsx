@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Column, Id, Task } from "./types";
+import type { Column, DraftTask, Id, Task } from "./types";
 import { AddColumn } from "./AddColumn";
 import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
 import {
@@ -20,6 +20,7 @@ import {
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import { TaskCardPreview } from "./TaskCard";
+import { generateKeyBetween } from "fractional-indexing";
 
 export function KanbanBoard() {
   const [column, setColumn] = useState<Column[]>([]);
@@ -34,11 +35,19 @@ export function KanbanBoard() {
 
   const [activeEle, setActiveEle] = useState<ActiveElement>(null);
 
-  const [colTaskName, setColTaskName] = useState<Task | undefined>(undefined);
+  const [colTaskName, setColTaskName] = useState<DraftTask | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
-    console.log(tasks);
+    tasks.map((task) => console.log(task.rank));
   }, [tasks]);
+
+  function tasksByCOlumn(colId: Id) {
+    return tasks
+      .filter((task) => task.colId === colId)
+      .sort((a, b) => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0));
+  }
 
   function generateColumn(name: string) {
     const id = crypto.randomUUID();
@@ -47,25 +56,28 @@ export function KanbanBoard() {
 
   function generateTask() {
     if (colTaskName && colTaskName.taskName !== "") {
-      setTasks((prev) => [...prev, colTaskName]);
+      const tasks = tasksByCOlumn(colTaskName?.colId);
+      const lastTask = tasks[tasks.length - 1];
+      const rank = generateKeyBetween(lastTask?.rank ?? null, null);
+      setTasks((prev) => [...prev, {...colTaskName, rank}]);
     }
     setColTaskName(undefined);
   }
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: {
-      distance: 10
-    }
-  })
+      distance: 10,
+    },
+  });
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
       delay: 250,
-      tolerance: 5
-    }
-  })
+      tolerance: 5,
+    },
+  });
 
-  const sensors = useSensors(pointerSensor, touchSensor)
+  const sensors = useSensors(pointerSensor, touchSensor);
 
   return (
     <div className="flex items-start gap-2 h-full overflow-x-auto">
@@ -75,7 +87,6 @@ export function KanbanBoard() {
         onDragOver={handleDragOver}
         collisionDetection={kanbanCollisionDetection}
         sensors={sensors}
-        
       >
         <SortableContext items={colId}>
           {column.map((col: Column) => {
@@ -140,12 +151,16 @@ export function KanbanBoard() {
   }
 
   function handleDragOver(event: DragOverEvent) {
-   //Need to improve the logic... Currently working through Poor logic...
+    //Need to improve the logic... Currently working through Poor logic...
 
     const { active, over } = event;
     console.log(over?.data.current?.type);
 
-    if (active.data.current?.type === "task" && over && active.id !== over?.id) {
+    if (
+      active.data.current?.type === "task" &&
+      over &&
+      active.id !== over?.id
+    ) {
       const activeId = active.id;
       const overId = over.id;
 
@@ -163,15 +178,17 @@ export function KanbanBoard() {
           const activeIndex = tasks.findIndex((obj) => obj.id === activeId);
           const overIndex = tasks.findIndex((obj) => obj.id === overId);
 
-          if (tasks[activeIndex].colId !== tasks[overIndex].colId && activeIndex < overIndex) {
-
+          if (
+            tasks[activeIndex].colId !== tasks[overIndex].colId &&
+            activeIndex < overIndex
+          ) {
             // Direct state mutation is not allowed.... check and change it later
             tasks[activeIndex].colId = tasks[overIndex].colId;
-          
+
             return arrayMove(tasks, activeIndex, overIndex - 1);
           }
           return arrayMove(tasks, activeIndex, overIndex);
-        })
+        });
         return;
       }
     }
@@ -181,7 +198,11 @@ export function KanbanBoard() {
 
     console.log(over?.data.current?.type);
     if (over)
-      if (active.id !== over.id && active.data.current?.type === 'column' && over.data.current?.type === 'column')  {
+      if (
+        active.id !== over.id &&
+        active.data.current?.type === "column" &&
+        over.data.current?.type === "column"
+      ) {
         setColumn((cols) => {
           const oldIndex = cols.findIndex((object) => object.id === active.id);
           const newIndex = cols.findIndex((object) => object.id === over.id);
@@ -194,25 +215,33 @@ export function KanbanBoard() {
 
   function kanbanCollisionDetection(args: any) {
     const { active, droppableContainers } = args;
-    const colActive = active.data.current?.type === 'column';
+    const colActive = active.data.current?.type === "column";
 
     if (colActive) {
-      const columnContainers = droppableContainers.filter((c: DroppableContainer) => c.data.current?.type === 'column');
+      const columnContainers = droppableContainers.filter(
+        (c: DroppableContainer) => c.data.current?.type === "column",
+      );
       return closestCenter({ ...args, droppableContainers: columnContainers });
-
     }
 
-    const taskContainers = droppableContainers.filter((c: DroppableContainer) => c.data.current?.type === 'task');
+    const taskContainers = droppableContainers.filter(
+      (c: DroppableContainer) => c.data.current?.type === "task",
+    );
 
-    const taskContainersCollision = rectIntersection({ ...args, droppableContainers: taskContainers });
-    console.log(taskContainersCollision)
+    const taskContainersCollision = rectIntersection({
+      ...args,
+      droppableContainers: taskContainers,
+    });
+    console.log(taskContainersCollision);
 
     if (taskContainersCollision.length > 0) {
       return taskContainersCollision;
     }
 
-    const columnContainers = droppableContainers.filter((c: DroppableContainer) => c.data.current?.type === 'column')
+    const columnContainers = droppableContainers.filter(
+      (c: DroppableContainer) => c.data.current?.type === "column",
+    );
 
-    return closestCenter({...args, droppableContainers :columnContainers});
+    return closestCenter({ ...args, droppableContainers: columnContainers });
   }
 }

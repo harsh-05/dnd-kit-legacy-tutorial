@@ -7,7 +7,7 @@ import {
   type SetStateAction,
 } from "react";
 import { AddIcon, ThreeDotsHorizontal } from "./Icons";
-import type { Column, Id, Task } from "./types";
+import type { Column, DraftTask, Id, Task } from "./types";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useOnClickOutside } from "./useOnClickOutside";
@@ -21,7 +21,7 @@ export function ColumnCard({
   tasks,
 }: {
   col: Column;
-  setColTaskName?: Dispatch<SetStateAction<Task | undefined>>;
+  setColTaskName?: Dispatch<SetStateAction<DraftTask | undefined>>;
   coltaskName?: Task | undefined;
   generateTask: () => void;
   tasks: Task[];
@@ -41,7 +41,9 @@ export function ColumnCard({
     },
   });
 
-  const taskIds = useMemo(() => { return tasks.map((task) => task.id) }, [tasks]);
+  const taskIds = useMemo(() => {
+    return tasks.map((task) => task.id);
+  }, [tasks]);
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -139,7 +141,7 @@ function AddTask({
   col?: Column;
   isPreview?: boolean;
   colTaskName: Task | undefined;
-  setColTaskName?: Dispatch<SetStateAction<Task | undefined>>;
+  setColTaskName?: Dispatch<SetStateAction<DraftTask | undefined>>;
   isDragging?: boolean;
   generateTask?: () => void;
 }) {
