@@ -5,8 +5,12 @@ export type Column = {
     name: string,
 }
 
-export type Task = {
+export type DraftTask = {
     id: Id,
     taskName: string,
     colId: Id
+}
+
+export type Task = DraftTask & {
+        rank: string
 }
