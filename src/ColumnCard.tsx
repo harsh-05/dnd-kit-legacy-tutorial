@@ -22,7 +22,7 @@ export function ColumnCard({
 }: {
   col: Column;
   setColTaskName?: Dispatch<SetStateAction<DraftTask | undefined>>;
-  coltaskName?: Task | undefined;
+  coltaskName?: DraftTask | undefined;
   generateTask: () => void;
   tasks: Task[];
 }) {
@@ -40,9 +40,9 @@ export function ColumnCard({
       col,
     },
   });
-
+  const sortedTasks = tasks.sort((a, b) => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0));
   const taskIds = useMemo(() => {
-    return tasks.map((task) => task.id);
+    return sortedTasks.map((task) => task.id);
   }, [tasks]);
 
   const style = {
@@ -77,7 +77,7 @@ export function ColumnCard({
         {/* Displaying the tasks here... */}
         <div className="flex flex-col  flex-1 min-h-0 overflow-y-auto  ">
           <SortableContext items={taskIds}>
-            {tasks.map((task) => {
+            {sortedTasks.map((task) => {
               return <TaskCard key={task.id} task={task}></TaskCard>;
             })}
           </SortableContext>
@@ -102,7 +102,7 @@ export function ColumnCardPreview({
   tasks,
 }: {
   col: Column;
-  coltaskName?: Task | undefined;
+  coltaskName?: DraftTask | undefined;
   tasks: Task[];
 }) {
   return (
@@ -140,7 +140,7 @@ function AddTask({
 }: {
   col?: Column;
   isPreview?: boolean;
-  colTaskName: Task | undefined;
+  colTaskName: DraftTask | undefined;
   setColTaskName?: Dispatch<SetStateAction<DraftTask | undefined>>;
   isDragging?: boolean;
   generateTask?: () => void;
