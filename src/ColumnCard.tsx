@@ -40,10 +40,15 @@ export function ColumnCard({
       col,
     },
   });
-  const sortedTasks = tasks.sort((a, b) => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0));
+  const sortedTasks = useMemo(() => {
+    return [...tasks].sort((a, b) =>
+      a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0,
+    );
+  }, [tasks]);
+  
   const taskIds = useMemo(() => {
     return sortedTasks.map((task) => task.id);
-  }, [tasks]);
+  }, [sortedTasks]);
 
   const style = {
     transform: CSS.Translate.toString(transform),
