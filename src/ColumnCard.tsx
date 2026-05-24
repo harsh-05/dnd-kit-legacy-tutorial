@@ -1,13 +1,11 @@
 import {
-  useEffect,
   useMemo,
   useRef,
-  useState,
   type Dispatch,
   type SetStateAction,
 } from "react";
 import { AddIcon, ThreeDotsHorizontal } from "./Icons";
-import type { Column, DraftTask, Id, Task } from "./types";
+import type { Column, DraftTask, Task } from "./types";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useOnClickOutside } from "./useOnClickOutside";
@@ -45,7 +43,7 @@ export function ColumnCard({
       a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0,
     );
   }, [tasks]);
-  
+
   const taskIds = useMemo(() => {
     return sortedTasks.map((task) => task.id);
   }, [sortedTasks]);
@@ -140,7 +138,7 @@ function AddTask({
   isPreview = false,
   colTaskName,
   setColTaskName,
-  isDragging = false,
+  //isDragging = false,
   generateTask,
 }: {
   col?: Column;

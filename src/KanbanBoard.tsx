@@ -4,10 +4,8 @@ import { AddColumn } from "./AddColumn";
 import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
 import {
   closestCenter,
-  closestCorners,
   DndContext,
   DragOverlay,
-  MouseSensor,
   PointerSensor,
   pointerWithin,
   rectIntersection,
@@ -208,7 +206,7 @@ export function KanbanBoard() {
 
     setTasks((prev) => {
       // The ORIGINAL column (before any handleDragOver mutation) lives here.
-      // active.data is a snapshot from drag start and never changes during drag.
+      // active.data is a snapshot from drag start and changes during drag.
       const originalColId = active.data.current?.task.colId as Id;
 
       // Determine target column and which task we're dropping near
@@ -342,6 +340,6 @@ export function KanbanBoard() {
       (c: DroppableContainer) => c.data.current?.type === "column",
     );
 
-    return rectIntersection({ ...args, droppableContainers: columnContainers });
+    return pointerWithin({ ...args, droppableContainers: columnContainers });
   }
 }
