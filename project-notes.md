@@ -12,3 +12,13 @@ Why this error occurs ?? what's really breaking inside the code ??
     at commitHookEffectListMount (react-dom_client.js?v=57279746:9411:163)
     at commitHookLayoutEffects (react-dom_client.js?v=57279746:9391:60)
     ```
+
+This might be happening because of frequent detection of column that causes to call dragOver function which might changes react state too frequently. 
+
+This problem can be solved by throttling in dragOver function, or making the robust collision detection function. 
+
+Need much more understanding......... Whereas there are plenty of blogs are available to solve this problem.
+
+
+
+active.data.current.task.colId; --> this changes when I change the state in react, on dragOver handler. Why ?? Am I breaking something ??
