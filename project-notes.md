@@ -1,3 +1,7 @@
+Problem: 
+
+ 1. 
+
 Why this error occurs ?? what's really breaking inside the code ?? 
 
 ```Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
@@ -18,6 +22,18 @@ This might be happening because of frequent detection of column that causes to c
 This problem can be solved by throttling in dragOver function, or making the robust collision detection function. 
 
 Need much more understanding......... Whereas there are plenty of blogs are available to solve this problem.
+
+
+Problem: 2. 
+
+```
+fractional-indexing.js?v=57279746:136 Uncaught Error: a2 >= a2
+    at KanbanBoard.tsx:307:23
+    at KanbanBoard (KanbanBoard.tsx:27:29)
+```
+
+
+Possible causes: generateTask() in KanbanBoard, and dragEnd function uses .sort((a, b) => (a.rank < b.rank ? -1 : 1)); instead of .sort((a, b) => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0));
 
 
 
