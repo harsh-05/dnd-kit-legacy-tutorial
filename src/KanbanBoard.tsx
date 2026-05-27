@@ -157,11 +157,14 @@ export function KanbanBoard() {
     if (active.data.current?.type !== "task") return;
 
     let targetColId: Id;
+    let targetType;
     if (over.data.current?.type === "task") {
       // over.data is also a snapshot — but for non-active tasks it's reliable
       // since handleDragOver only mutates the active task's colId
+      targetType = over.data.current?.type;
       targetColId = over.data.current.task.colId;
     } else if (over.data.current?.type === "column") {
+      targetType = over.data.current?.type;
       targetColId = over.id as Id;
     } else {
       return;
@@ -171,11 +174,40 @@ export function KanbanBoard() {
 
     if (activeColId !== targetColId) {
       console.log("same hai" + activeColId + " <---->" + targetColId);
+
       setTasks((prev) => {
         const liveActiveTask = prev.find((t) => t.id === active.id);
         // Only update if the task is actually moving to a NEW column
         if (!liveActiveTask || liveActiveTask.colId === targetColId)
           return prev;
+
+        const targetColTasks = prev
+          .filter((t) => t.colId === targetColId)
+          .sort((a, b) => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0));
+
+        let newActiveTaskRank;
+        if (targetType === "task") {
+          let overTask = over.data.current?.task;
+          let overTaskIndex = targetColTasks.findIndex(
+            (t) => t.id === overTask.id,
+          );
+          const rankAbove = targetColTasks[overTaskIndex - 1]?.rank ?? null;
+          const rankBelow = targetColTasks[overTaskIndex]?.rank ?? null;
+          newActiveTaskRank = generateKeyBetween(rankAbove, rankBelow);
+        }
+
+        if (targetType === "column") {
+          const last = targetColTasks[targetColTasks.length - 1];
+          newActiveTaskRank = generateKeyBetween(last?.rank ?? null, null);
+        }
+
+        if (newActiveTaskRank) {
+          return prev.map((t) =>
+            t.id === active.id
+              ? { ...t, colId: targetColId, rank: newActiveTaskRank }
+              : t,
+          );
+        }
 
         return prev.map((t) =>
           t.id === active.id ? { ...t, colId: targetColId } : t,
