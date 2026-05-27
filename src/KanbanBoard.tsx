@@ -4,10 +4,8 @@ import { AddColumn } from "./AddColumn";
 import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
 import {
   closestCenter,
-  closestCorners,
   DndContext,
   DragOverlay,
-  MouseSensor,
   PointerSensor,
   pointerWithin,
   rectIntersection,
@@ -41,9 +39,9 @@ export function KanbanBoard() {
     undefined,
   );
 
-  useEffect(() => {
-    tasks.map((task) => console.log(task.rank));
-  }, [tasks]);
+  // useEffect(() => {
+  //   tasks.map((task) => console.log(task.rank));
+  // }, [tasks]);
 
   function tasksByCOlumn(colId: Id) {
     return tasks
@@ -153,31 +151,39 @@ export function KanbanBoard() {
   }
 
   function handleDragOver(event: DragOverEvent) {
-     const { active, over } = event;
-     if (!over) return;
-     if (active.data.current?.type !== "task") return;
+    const { active, over } = event;
 
-     let targetColId: Id;
-     if (over.data.current?.type === "task") {
-       // over.data is also a snapshot — but for non-active tasks it's reliable
-       // since handleDragOver only mutates the active task's colId
-       targetColId = over.data.current.task.colId;
-     } else if (over.data.current?.type === "column") {
-       targetColId = over.id as Id;
-     } else {
-       return;
-     }
+    if (!over) return;
+    if (active.data.current?.type !== "task") return;
 
-     // Use setTasks with a function so we can check live state inside
-     setTasks((prev) => {
-       const liveActiveTask = prev.find((t) => t.id === active.id);
-       // Only update if the task is actually moving to a NEW column
-       if (!liveActiveTask || liveActiveTask.colId === targetColId) return prev;
+    let targetColId: Id;
+    if (over.data.current?.type === "task") {
+      // over.data is also a snapshot — but for non-active tasks it's reliable
+      // since handleDragOver only mutates the active task's colId
+      targetColId = over.data.current.task.colId;
+    } else if (over.data.current?.type === "column") {
+      targetColId = over.id as Id;
+    } else {
+      return;
+    }
 
-       return prev.map((t) =>
-         t.id === active.id ? { ...t, colId: targetColId } : t,
-       );
-     });
+    const activeColId = active.data.current.task.colId;
+
+    if (activeColId !== targetColId) {
+      console.log("same hai" + activeColId + " <---->" + targetColId);
+      setTasks((prev) => {
+        const liveActiveTask = prev.find((t) => t.id === active.id);
+        // Only update if the task is actually moving to a NEW column
+        if (!liveActiveTask || liveActiveTask.colId === targetColId)
+          return prev;
+
+        return prev.map((t) =>
+          t.id === active.id ? { ...t, colId: targetColId } : t,
+        );
+      });
+    }
+
+    //  Use setTasks with a function so we can check live state inside
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -208,7 +214,7 @@ export function KanbanBoard() {
 
     setTasks((prev) => {
       // The ORIGINAL column (before any handleDragOver mutation) lives here.
-      // active.data is a snapshot from drag start and never changes during drag.
+      // active.data is a snapshot from drag start and changes during drag.
       const originalColId = active.data.current?.task.colId as Id;
 
       // Determine target column and which task we're dropping near
@@ -233,7 +239,7 @@ export function KanbanBoard() {
       // We exclude it because we're computing where to re-insert it.
       const colTasks = prev
         .filter((t) => t.colId === targetColId && t.id !== active.id)
-        .sort((a, b) => (a.rank < b.rank ? -1 : 1));
+        .sort((a, b) => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0));
 
       let rankAbove: string | null;
       let rankBelow: string | null;
@@ -265,7 +271,7 @@ export function KanbanBoard() {
           // We look at ALL tasks in the column (including active) sorted by rank.
           const allColTasks = prev
             .filter((t) => t.colId === targetColId)
-            .sort((a, b) => (a.rank < b.rank ? -1 : 1));
+            .sort((a, b) => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0));
 
           const originalIndex = allColTasks.findIndex(
             (t) => t.id === active.id,
@@ -329,7 +335,7 @@ export function KanbanBoard() {
       (c: DroppableContainer) => c.data.current?.type === "task",
     );
 
-    const taskContainersCollision = rectIntersection({
+    const taskContainersCollision = pointerWithin({
       ...args,
       droppableContainers: taskContainers,
     });
@@ -341,7 +347,6 @@ export function KanbanBoard() {
     const columnContainers = droppableContainers.filter(
       (c: DroppableContainer) => c.data.current?.type === "column",
     );
-
-    return rectIntersection({ ...args, droppableContainers: columnContainers });
+    return pointerWithin({ ...args, droppableContainers: columnContainers });
   }
 }
