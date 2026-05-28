@@ -4,6 +4,7 @@ import { AddColumn } from "./AddColumn";
 import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
 import {
   closestCenter,
+  closestCorners,
   DndContext,
   DragOverlay,
   PointerSensor,
@@ -355,30 +356,37 @@ export function KanbanBoard() {
   function kanbanCollisionDetection(args: any) {
     const { active, droppableContainers } = args;
     const colActive = active.data.current?.type === "column";
-
+   
     if (colActive) {
       const columnContainers = droppableContainers.filter(
         (c: DroppableContainer) => c.data.current?.type === "column",
       );
       return closestCenter({ ...args, droppableContainers: columnContainers });
     }
+    
+    // else if User is not dragging the column.
 
     const taskContainers = droppableContainers.filter(
       (c: DroppableContainer) => c.data.current?.type === "task",
     );
 
-    const taskContainersCollision = closestCenter({
+    const taskContainersCollision = closestCorners({
       ...args,
       droppableContainers: taskContainers,
     });
 
-    if (taskContainersCollision.length > 0) {
-      return taskContainersCollision;
-    }
-
     const columnContainers = droppableContainers.filter(
       (c: DroppableContainer) => c.data.current?.type === "column",
     );
-    return pointerWithin({ ...args, droppableContainers: columnContainers });
+    const columnContainerCollision = closestCorners({...args, droppableContainers: columnContainers})
+ 
+    let taskValueNumber: number = taskContainersCollision[0].data?.value;
+    let columnValueNumber: number = columnContainerCollision[0].data?.value;
+
+    if (taskValueNumber <= columnValueNumber) {
+      return taskContainersCollision
+    }
+    return columnContainerCollision;
+
   }
 }
