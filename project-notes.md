@@ -38,3 +38,27 @@ Possible causes: generateTask() in KanbanBoard, and dragEnd function uses .sort(
 
 
 active.data.current.task.colId; --> this changes when I change the state in react, on dragOver handler. Why ?? Am I breaking something ??
+
+
+
+
+Problem 3. pointerWithin appears to solve the "Maximum Depth update exceeded" error, but it causes jitter because it detects columns between margins of tasks in column.
+
+    =>  To use ClosestCorner or ClosestCenter in custom collision function.........
+    
+    sub-Problem a:  Closestcenter will not let you detect empty columns even if you are exactly over them.
+        Solution: dndkit gives you value of closestCenter collisions, we can use that to compare which is nearest and return instead of using length > 0 
+
+
+    sub-Problem b: The Problem with "Closest Center" (The Kanban Example) Imagine a Kanban board (like Trello). You have a big Column container, and inside that column, you have small Task containers stacked on top of each other.
+
+            Now, imagine you are dragging a Task card and you place it right between two small Task containers.
+
+            The center of the small Task container above you is pretty close.
+            The center of the small Task container below you is pretty close.
+            BUT, the center of the big Column container itself is exactly right where you are hovering!
+            
+            Because the big Column's center is sitting right under your cursor, the Closest Center algorithm gets confused. It measures the distances and says, "Ah! The big Column's center is the closest! I will select the whole column." This feels wrong to a human, because visually you are aiming at the small tasks inside the column, not the column itself.
+
+        Solution: Why Closest Corners fixes this:
+                    With Closest Corners, it looks at the edges. The big Column's corners are far away at the edges of the screen. But the corners of the small Task containers are right next to your dragged item. So, Closest Corners correctly selects the small Task container, which matches what your eyes expect.
