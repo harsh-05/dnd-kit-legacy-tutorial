@@ -367,7 +367,7 @@ export function KanbanBoard() {
       (c: DroppableContainer) => c.data.current?.type === "task",
     );
 
-    const taskContainersCollision = pointerWithin({
+    const taskContainersCollision = closestCenter({
       ...args,
       droppableContainers: taskContainers,
     });
