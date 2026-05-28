@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Column, DraftTask, Id, Task } from "./types";
 import { AddColumn } from "./AddColumn";
 import { ColumnCard, ColumnCardPreview } from "./ColumnCard";
@@ -8,8 +8,6 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
-  pointerWithin,
-  rectIntersection,
   TouchSensor,
   useSensor,
   useSensors,
@@ -363,7 +361,7 @@ export function KanbanBoard() {
       );
       return closestCenter({ ...args, droppableContainers: columnContainers });
     }
-    
+
     // else if User is not dragging the column.
 
     const taskContainers = droppableContainers.filter(
